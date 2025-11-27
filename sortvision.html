@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,18 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
-    <script type="module">
-        window.addEventListener("DOMContentLoaded", () => {
-            import("https://pyscript.net/releases/2024.1.1/core.js");
-        });
-    </script>
-
     <style>
-        /* Updated deep dark background for contrast */
+        /* Deep dark background for contrast */
         body { font-family: 'Inter', sans-serif; background-color: #020617; }
 
-        /* Slider Styling - Updated to match new emerald theme */
+        /* Slider Styling */
         input[type=range] { appearance: none; -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 16px; width: 16px;
@@ -30,53 +24,45 @@
             width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px;
         }
 
-        /* Visualizer Bars - New Default Color (Emerald) */
+        /* Visualizer Bars */
         .bar-container {
             display: flex; align-items: flex-end; justify-content: center;
             height: 100%; width: 100%; padding: 0 0.5rem;
         }
+        /* Find this class in your <style> tag and update the background-color */
         .array-bar {
-            /* Width is now handled by flex-grow in Python for responsiveness */
-            background-color: #34d399; /* Emerald 400 */
+            background-color: #38bdf8; /* CHANGED: Sky 400 (was Emerald) */
             transform-origin: bottom;
             border-top-left-radius: 2px;
             border-top-right-radius: 2px;
             transition: height 0.1s ease-in-out;
         }
 
-        /* Color States - Refined Color Palette */
-        .bar-compare { background-color: #fbbf24 !important; } /* Amber 400 (Comparison/Working) */
-        .bar-swap { background-color: #f43f5e !important; } /* Rose 500 (Swaps) */
-        .bar-sorted { background-color: #22c55e !important; } /* Green 500 (Finished/Sorted) */
-        .bar-overwrite { background-color: #a78bfa !important; } /* Violet 400 (Overwrite/Merge) */
-        .bar-pivot { background-color: #ec4899 !important; } /* Pink 500 (Pivot) */
+        /* Color States */
+        .bar-compare { background-color: #fbbf24 !important; } /* Amber 400 */
+        .bar-swap { background-color: #f43f5e !important; } /* Rose 500 */
+        .bar-sorted { background-color: #22c55e !important; } /* Green 500 */
+        .bar-overwrite { background-color: #a78bfa !important; } /* Violet 400 */
+        .bar-pivot { background-color: #ec4899 !important; } /* Pink 500 */
 
-        /* --- Disabled Button Styling --- */
+        /* Disabled State */
         button:disabled, select:disabled, input[type="range"]:disabled, .disabled-btn {
             pointer-events: auto !important;
             cursor: not-allowed !important;
             opacity: 0.6;
             transition: none;
         }
-        button:disabled:hover, .disabled-btn:hover {
-            background-color: inherit !important;
-            color: inherit !important;
-            box-shadow: none !important;
-        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-slate-950 text-emerald-400">
+    <div id="loading-overlay" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-slate-950 text-emerald-400 transition-opacity duration-500">
         <i class="fa-solid fa-gear fa-spin text-5xl mb-4"></i>
         <p class="text-lg font-semibold animate-pulse">Initializing Engine...</p>
     </div>
 
-    <!-- Info/Welcome Modal -->
     <div id="info-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/95 backdrop-blur-sm p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8 transform transition-all
-        scale-100 opacity-100 overflow-y-auto max-h-[90vh]">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8 transform transition-all scale-100 opacity-100 overflow-y-auto max-h-[90vh]">
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 mb-4">
                     <i class="fa-solid fa-graduation-cap text-3xl"></i>
@@ -96,37 +82,29 @@
                 </ul>
             </div>
 
-            <button id="start-app-btn" class="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl
-            transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 group">
+            <button id="start-app-btn" class="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 group">
                 <span>Start Visualizing</span>
                 <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
             </button>
         </div>
     </div>
 
-    <!-- Header & Controls -->
     <header class="bg-slate-900 border-b border-slate-800 shadow-xl z-10">
         <div class="max-w-screen-2xl mx-auto px-4 py-4">
-            <!-- Main Layout: Stack on Mobile, Row on Huge Screens -->
             <div class="flex flex-col xl:flex-row items-center justify-between gap-4 w-full">
 
-                <!-- 1. Title Group -->
                 <div class="flex items-center justify-between w-full xl:w-auto gap-4">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-cubes text-emerald-400 text-2xl"></i>
                         <h1 class="text-xl font-bold tracking-tight text-white">Mada <span class="text-emerald-400">SortVision</span></h1>
                     </div>
-
-                    <!-- Moved Link to right on mobile for better spacing -->
-                    <a href="index.html" rel="noopener noreferrer" class="px-2 py-1 text-xs md:text-sm bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg font-medium transition-all border border-slate-700 flex items-center gap-1">
+                    <a href="#" class="px-2 py-1 text-xs md:text-sm bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg font-medium transition-all border border-slate-700 flex items-center gap-1">
                         <i class="fa-solid fa-up-right-from-square text-[10px]"></i> <span class="hidden sm:inline">Vormada Site</span><span class="sm:hidden">Exit</span>
                     </a>
                 </div>
 
-                <!-- 2. Controls Group (Grid on Mobile, Flex on Desktop) -->
                 <div class="grid grid-cols-2 md:flex md:flex-wrap items-center justify-center gap-3 md:gap-6 bg-slate-800/50 p-3 rounded-xl border border-slate-600 shadow-lg w-full xl:w-auto">
 
-                    <!-- Algorithm Select -->
                     <div class="flex flex-col gap-1 items-start col-span-1">
                         <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider">Algorithm</span>
                         <div class="relative w-full">
@@ -143,7 +121,6 @@
                         </div>
                     </div>
 
-                    <!-- Distribution Select -->
                     <div class="flex flex-col gap-1 items-start col-span-1">
                         <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider">Distribution</span>
                         <div class="relative w-full">
@@ -158,7 +135,6 @@
                         </div>
                     </div>
 
-                    <!-- Size Slider -->
                     <div class="flex flex-col gap-1 col-span-1 md:w-24">
                         <div class="flex justify-between text-xs md:text-sm text-slate-400 font-medium">
                             <span>Size</span><span id="size-val">50</span>
@@ -166,7 +142,6 @@
                         <input type="range" id="size-slider" min="5" max="150" value="50" class="w-full">
                     </div>
 
-                    <!-- Speed Slider -->
                     <div class="flex flex-col gap-1 col-span-1 md:w-24">
                         <div class="flex justify-between text-xs md:text-sm text-slate-400 font-medium">
                             <span>Speed</span><span id="speed-val">Fast</span>
@@ -174,7 +149,6 @@
                         <input type="range" id="speed-slider" min="1" max="100" value="80" class="w-full">
                     </div>
 
-                    <!-- Stats Group (Ops + Time) -->
                     <div class="col-span-2 md:col-span-1 flex items-center justify-between md:justify-start gap-4 md:border-l md:border-slate-700 md:pl-4 h-full bg-slate-700/30 md:bg-transparent p-2 md:p-0 rounded-lg">
                         <div class="flex flex-col items-center md:items-end">
                             <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider">Ops</span>
@@ -186,14 +160,12 @@
                             <span id="timer-display" class="font-mono text-emerald-400 font-bold text-base md:text-lg leading-none">0.00s</span>
                         </div>
 
-                        <!-- Sound Button -->
                         <button id="sound-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 transition-colors border border-slate-700 ml-2" title="Toggle Sound">
                             <i class="fa-solid fa-volume-xmark" id="sound-icon"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- 3. Action Buttons -->
                 <div class="flex flex-wrap items-center justify-center gap-2 w-full xl:w-auto">
                     <button id="restart-btn" class="flex-1 xl:flex-none justify-center px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium text-sm md:text-base transition-all shadow-sm border border-slate-600 flex items-center gap-2" title="Reset array.">
                         <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">Restart</span>
@@ -215,15 +187,12 @@
         </div>
     </header>
 
-    <!-- Main Visualizer Area -->
     <main class="flex-1 relative bg-slate-950 flex flex-col justify-center items-center p-2 md:p-8 overflow-hidden">
-        <div id="visualizer-container" class="bar-container h-[55vh] md:h-[60vh] w-full max-w-7xl border-b border-slate-800 pb-1">
-            <!-- Visualizer Bars are injected here by PyScript -->
-        </div>
+        <div id="visualizer-container" class="bar-container h-[55vh] md:h-[60vh] w-full max-w-7xl border-b border-slate-800 pb-1"></div>
 
-        <!-- Color Legend -->
         <div class="mt-6 flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[10px] md:text-sm text-slate-400">
-            <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-emerald-400"></div><span>Unsorted</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-sky-400"></div><span>Unsorted</span></div>
+            
             <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-amber-400"></div><span>Compare</span></div>
             <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-rose-500"></div><span>Swap</span></div>
             <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-violet-400"></div><span>Overwrite</span></div>
@@ -231,13 +200,13 @@
             <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-green-500"></div><span>Sorted</span></div>
         </div>
     </main>
+    
+    
 
     <footer class="text-center text-[10px] md:text-xs text-slate-600 py-2">
         © 2025 Mada SortVision by Vormada.
     </footer>
 
-
-
-    <script type="py" src="./main.py"></script>
+    <script src="./script.js"></script>
 </body>
 </html>

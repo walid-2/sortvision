@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vormada | Research Projects</title>
+    <link rel="icon" type="image/png" href="./images/logo_round.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-slate-900 text-slate-200 font-sans antialiased">
+
+    <header class="bg-slate-800 shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4 sm:px-6 py-3 md:px-12 md:py-4">
+
+            <a href="/" class="flex items-center space-x-3 mb-3 sm:mb-0">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-blue-500 flex-shrink-0">
+                    <img src="./images/logo.png" alt="Vormada Logo" class="w-full h-full object-cover">
+                </div>
+                <span class="text-xl sm:text-2xl md:text-3xl font-bold text-white">Vormada</span>
+            </a>
+
+            <nav class="flex flex-wrap justify-center space-x-4 sm:space-x-6 md:space-x-8 items-center text-sm sm:text-base"> 
+                <a href="index.html#about" class="text-slate-300 hover:text-white transition duration-300 ease-in-out py-1">About</a> 
+                <a href="index.html#services" class="text-slate-300 hover:text-white transition duration-300 ease-in-out py-1">Services</a> 
+                <a href="research_projects.html" class="text-slate-300 hover:text-white transition duration-300 ease-in-out py-1">Research Projects</a> 
+                <a href="sortvision.html" class="text-blue-400 hover:text-white transition duration-300 ease-in-out py-1 font-semibold">SortVision App</a>
+                <a href="index.html#book-services" class="text-slate-300 hover:text-white transition duration-300 ease-in-out py-1">Contact</a>
+                <a 
+                    href="https://youtube.com/@Vormada" target="_blank" rel="noopener noreferrer"
+                    class="text-slate-300 hover:text-white flex items-center space-x-2 transition duration-300 ease-in-out py-1">
+                    <i class="fab fa-youtube text-2xl"></i>
+                    <span class="hidden sm:inline">YouTube</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Research Projects -->
+    <section class="py-12 sm:py-16 bg-slate-800">
+        <div class="container mx-auto px-6 md:px-12 max-w-6xl">
+            <h2 class="text-3xl font-bold text-white text-center mb-10">Research Projects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                <!-- Project Card 1 -->
+                <div class="bg-slate-700 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300">
+                    <h3 class="text-2xl font-semibold text-white mb-2">Modeling the carbon cycle with a box-model</h3>
+                    <p class="text-slate-400 text-sm mb-1">By <span class="font-semibold text-slate-200">Walid Alzohili</span> | Published: 2023-05</p>
+                    <p class="text-slate-300 mt-4 mb-6">This project aims to create a model that will predict the global temperature changes...</p>
+                    <a href="/pdfs/modeling_the_carbon_cycle_with_a_box_model.pdf" target="_blank"
+                        class="inline-block bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition">View PDF</a>
+                </div>
+
+                <!-- Project Card 2 -->
+                <div class="bg-slate-700 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300">
+                    <h3 class="text-2xl font-semibold text-white mb-2">Predicting Atmospheric CO<sub>2</sub> Concentrations With Machine Learning</h3>
+                    <p class="text-slate-400 text-sm mb-1">By <span class="font-semibold text-slate-200">Walid Alzohili</span> | Published: 2024-02</p>
+                    <p class="text-slate-300 mt-4 mb-6">This report aims to improve the prediction of atmospheric CO<sub>2</sub> concentrations using...</p>
+                    <a href="/pdfs/predicting_atmospheric_co2_concentrations_with_machine_learning.pdf" target="_blank"
+                        class="inline-block bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition">View PDF</a>
+                </div>
+
+                <!-- Project Card 3 -->
+                <div class="bg-slate-700 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300">
+                    <h3 class="text-2xl font-semibold text-white mb-2">Assessing the performance of multiple semi-supervised learning techniques in sentiment analysis</h3>
+                    <p class="text-slate-400 text-sm mb-1">By <span class="font-semibold text-slate-200">Walid Alzohili</span> | Published: 2024-04</p>
+                    <p class="text-slate-300 mt-4 mb-6">Sentiment analysis is one of the major tasks of NLP... we examined the performance of three techniques...</p>
+                    <a href="/pdfs/semi_supervised_learning.pdf" target="_blank"
+                        class="inline-block bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition">View PDF</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-6 sm:py-8 bg-slate-900 text-center border-t border-slate-700">
+        <p class="text-slate-400 text-sm sm:text-base">© 2025 Vormada. All rights reserved.</p>
+        <p class="text-slate-500 text-xs sm:text-sm mt-1">Stockholm, Sweden</p>
+    </footer>
+</body>
+</html>
+
+
+
+
