@@ -9,7 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <script type="module">
+        window.addEventListener("DOMContentLoaded", () => {
+            import("https://pyscript.net/releases/2024.1.1/core.js");
+        });
+    </script>
 
     <style>
         /* Updated deep dark background for contrast */
