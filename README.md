@@ -21,13 +21,6 @@ You can test the application live right now at:
 * **Dynamic Controls:** Adjust the **array size** (5 to 150 elements) and **visualization speed** on the fly.
 * **Performance Metrics:** Track the learning curve with real-time displays for the number of **operations (Ops)** and the **elapsed time**.
 
----
-
-## 🛠️ Technology Stack
-This project is built to deliver fast, client-side performance using modern web technologies:
-
-* **Frontend UI:** HTML5 and **Tailwind CSS** for a responsive, component-driven design.
-* **Core Logic:** **PyScript** (Python in the browser) is used to execute the sorting algorithm logic directly on the client side.
 
 ---
 
