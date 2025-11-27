@@ -1,0 +1,239 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mada SortVision - Sorting Visualizer</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+
+    <style>
+        /* Updated deep dark background for contrast */
+        body { font-family: 'Inter', sans-serif; background-color: #020617; }
+
+        /* Slider Styling - Updated to match new emerald theme */
+        input[type=range] { appearance: none; -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px;
+            border-radius: 50%; background: #10b981; /* Emerald 500 */ cursor: pointer;
+            margin-top: -6px; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px;
+        }
+
+        /* Visualizer Bars - New Default Color (Emerald) */
+        .bar-container {
+            display: flex; align-items: flex-end; justify-content: center;
+            height: 100%; width: 100%; padding: 0 0.5rem;
+        }
+        .array-bar {
+            /* Width is now handled by flex-grow in Python for responsiveness */
+            background-color: #34d399; /* Emerald 400 */
+            transform-origin: bottom;
+            border-top-left-radius: 2px;
+            border-top-right-radius: 2px;
+            transition: height 0.1s ease-in-out;
+        }
+
+        /* Color States - Refined Color Palette */
+        .bar-compare { background-color: #fbbf24 !important; } /* Amber 400 (Comparison/Working) */
+        .bar-swap { background-color: #f43f5e !important; } /* Rose 500 (Swaps) */
+        .bar-sorted { background-color: #22c55e !important; } /* Green 500 (Finished/Sorted) */
+        .bar-overwrite { background-color: #a78bfa !important; } /* Violet 400 (Overwrite/Merge) */
+        .bar-pivot { background-color: #ec4899 !important; } /* Pink 500 (Pivot) */
+
+        /* --- Disabled Button Styling --- */
+        button:disabled, select:disabled, input[type="range"]:disabled, .disabled-btn {
+            pointer-events: auto !important;
+            cursor: not-allowed !important;
+            opacity: 0.6;
+            transition: none;
+        }
+        button:disabled:hover, .disabled-btn:hover {
+            background-color: inherit !important;
+            color: inherit !important;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-slate-950 text-emerald-400">
+        <i class="fa-solid fa-gear fa-spin text-5xl mb-4"></i>
+        <p class="text-lg font-semibold animate-pulse">Initializing Engine...</p>
+    </div>
+
+    <!-- Info/Welcome Modal -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/95 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8 transform transition-all
+        scale-100 opacity-100 overflow-y-auto max-h-[90vh]">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 mb-4">
+                    <i class="fa-solid fa-graduation-cap text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-2">Welcome to Mada SortVision</h2>
+                <p class="text-slate-400">An interactive educational tool.</p>
+            </div>
+
+            <div class="space-y-4 text-slate-300 text-sm md:text-base leading-relaxed mb-8">
+                <p>
+                    This application visualizes how different <strong>sorting algorithms</strong> process data to arrange it in order.
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-slate-400 ml-2 bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+                    <li><i class="fa-solid fa-eye text-emerald-500 mr-2"></i>Watch algorithms sort in real-time</li>
+                    <li><i class="fa-solid fa-chart-simple text-indigo-400 mr-2"></i>Track operations</li>
+                    <li><i class="fa-solid fa-sliders text-amber-500 mr-2"></i>Mobile optimized visualization</li>
+                </ul>
+            </div>
+
+            <button id="start-app-btn" class="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl
+            transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 group">
+                <span>Start Visualizing</span>
+                <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header & Controls -->
+    <header class="bg-slate-900 border-b border-slate-800 shadow-xl z-10">
+        <div class="max-w-screen-2xl mx-auto px-4 py-4">
+            <!-- Main Layout: Stack on Mobile, Row on Huge Screens -->
+            <div class="flex flex-col xl:flex-row items-center justify-between gap-4 w-full">
+
+                <!-- 1. Title Group -->
+                <div class="flex items-center justify-between w-full xl:w-auto gap-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-cubes text-emerald-400 text-2xl"></i>
+                        <h1 class="text-xl font-bold tracking-tight text-white">Mada <span class="text-emerald-400">SortVision</span></h1>
+                    </div>
+
+                    <!-- Moved Link to right on mobile for better spacing -->
+                    <a href="index.html" rel="noopener noreferrer" class="px-2 py-1 text-xs md:text-sm bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg font-medium transition-all border border-slate-700 flex items-center gap-1">
+                        <i class="fa-solid fa-up-right-from-square text-[10px]"></i> <span class="hidden sm:inline">Vormada Site</span><span class="sm:hidden">Exit</span>
+                    </a>
+                </div>
+
+                <!-- 2. Controls Group (Grid on Mobile, Flex on Desktop) -->
+                <div class="grid grid-cols-2 md:flex md:flex-wrap items-center justify-center gap-3 md:gap-6 bg-slate-800/50 p-3 rounded-xl border border-slate-600 shadow-lg w-full xl:w-auto">
+
+                    <!-- Algorithm Select -->
+                    <div class="flex flex-col gap-1 items-start col-span-1">
+                        <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider">Algorithm</span>
+                        <div class="relative w-full">
+                            <select id="algo-select" class="w-full appearance-none bg-slate-700 border border-slate-600 text-white py-1.5 md:py-2 pl-2 md:pl-3 pr-6 md:pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm md:text-base font-medium transition-colors cursor-pointer hover:bg-slate-600 truncate">
+                                <option value="bubble">Bubble Sort</option>
+                                <option value="selection">Selection Sort</option>
+                                <option value="insertion">Insertion Sort</option>
+                                <option value="merge">Merge Sort</option>
+                                <option value="quick">Quick Sort</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Distribution Select -->
+                    <div class="flex flex-col gap-1 items-start col-span-1">
+                        <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider">Distribution</span>
+                        <div class="relative w-full">
+                            <select id="distro-select" class="w-full appearance-none bg-slate-700 border border-slate-600 text-white py-1.5 md:py-2 pl-2 md:pl-3 pr-6 md:pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm md:text-base font-medium transition-colors cursor-pointer hover:bg-slate-600 truncate">
+                                <option value="random">Random</option>
+                                <option value="rev_sorted">Reverse Sorted</option>
+                                <option value="few_unique">Few Unique</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Size Slider -->
+                    <div class="flex flex-col gap-1 col-span-1 md:w-24">
+                        <div class="flex justify-between text-xs md:text-sm text-slate-400 font-medium">
+                            <span>Size</span><span id="size-val">50</span>
+                        </div>
+                        <input type="range" id="size-slider" min="5" max="150" value="50" class="w-full">
+                    </div>
+
+                    <!-- Speed Slider -->
+                    <div class="flex flex-col gap-1 col-span-1 md:w-24">
+                        <div class="flex justify-between text-xs md:text-sm text-slate-400 font-medium">
+                            <span>Speed</span><span id="speed-val">Fast</span>
+                        </div>
+                        <input type="range" id="speed-slider" min="1" max="100" value="80" class="w-full">
+                    </div>
+
+                    <!-- Stats Group (Ops + Time) -->
+                    <div class="col-span-2 md:col-span-1 flex items-center justify-between md:justify-start gap-4 md:border-l md:border-slate-700 md:pl-4 h-full bg-slate-700/30 md:bg-transparent p-2 md:p-0 rounded-lg">
+                        <div class="flex flex-col items-center md:items-end">
+                            <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider">Ops</span>
+                            <span id="ops-display" class="font-mono text-indigo-400 font-bold text-base md:text-lg leading-none">0</span>
+                        </div>
+                        <div class="w-px h-8 bg-slate-600 md:hidden"></div>
+                        <div class="flex flex-col items-center md:items-end">
+                            <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider">Time</span>
+                            <span id="timer-display" class="font-mono text-emerald-400 font-bold text-base md:text-lg leading-none">0.00s</span>
+                        </div>
+
+                        <!-- Sound Button -->
+                        <button id="sound-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 transition-colors border border-slate-700 ml-2" title="Toggle Sound">
+                            <i class="fa-solid fa-volume-xmark" id="sound-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Action Buttons -->
+                <div class="flex flex-wrap items-center justify-center gap-2 w-full xl:w-auto">
+                    <button id="restart-btn" class="flex-1 xl:flex-none justify-center px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium text-sm md:text-base transition-all shadow-sm border border-slate-600 flex items-center gap-2" title="Reset array.">
+                        <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">Restart</span>
+                    </button>
+                    <button id="generate-btn" class="flex-1 xl:flex-none justify-center px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium text-sm md:text-base transition-all shadow-sm border border-slate-600 flex items-center gap-2" title="New array.">
+                        <i class="fa-solid fa-shuffle"></i> <span class="hidden sm:inline">New</span>
+                    </button>
+
+                    <div class="w-0.5 h-8 bg-slate-700 mx-1 md:mx-3 rounded-full"></div>
+
+                    <button id="pause-btn" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium text-sm md:text-base transition-all shadow-sm flex items-center gap-2 disabled-btn">
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+                    <button id="sort-btn" class="flex-grow xl:flex-none justify-center px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-sm md:text-base transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> Start Sort
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Visualizer Area -->
+    <main class="flex-1 relative bg-slate-950 flex flex-col justify-center items-center p-2 md:p-8 overflow-hidden">
+        <div id="visualizer-container" class="bar-container h-[55vh] md:h-[60vh] w-full max-w-7xl border-b border-slate-800 pb-1">
+            <!-- Visualizer Bars are injected here by PyScript -->
+        </div>
+
+        <!-- Color Legend -->
+        <div class="mt-6 flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[10px] md:text-sm text-slate-400">
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-emerald-400"></div><span>Unsorted</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-amber-400"></div><span>Compare</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-rose-500"></div><span>Swap</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-violet-400"></div><span>Overwrite</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-pink-500"></div><span>Pivot</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 md:w-3 md:h-3 rounded-full bg-green-500"></div><span>Sorted</span></div>
+        </div>
+    </main>
+
+    <footer class="text-center text-[10px] md:text-xs text-slate-600 py-2">
+        © 2025 Mada SortVision by Vormada.
+    </footer>
+
+
+
+    <script type="py" src="./main.py"></script>
+</body>
+</html>
