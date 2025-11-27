@@ -281,14 +281,6 @@ class AlgoVisualizer {
             this.container.appendChild(bar);
         });
     }
-    /* Find this class in your <style> tag and update the background-color */
-.array-bar {
-    background-color: #38bdf8; /* CHANGED: Sky 400 (was Emerald) */
-    transform-origin: bottom;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    transition: height 0.1s ease-in-out;
-}
 
     resetStats() {
         this.operations = 0;
